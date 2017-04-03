@@ -22,10 +22,14 @@ def login(username, password):
     s.headers["User-Agent"] = "PlacePlacer"
     r = s.post("https://www.reddit.com/api/login/{}".format(username),
                data={"user": username, "passwd": password, "api_type": "json"})
+
+    if r.status_code != 200:
+        return None, "HTTP status " + r.status_code
+
     json = r.json()["json"]
 
     if len(json["errors"]) > 0:
-        return None, json["errors"]
+        return None, json["errors"][0][1]
 
     s.headers['x-modhash'] = json["data"]["modhash"]
     return s, None
@@ -66,8 +70,10 @@ def place_pixel(session, ax, ay, new_color):
  
     r = session.get("http://reddit.com/api/place/pixel.json?x={}&y={}".format(ax, ay), timeout=5)
     if r.status_code != 200:
-        print("ERROR: ", r, r.text)
-        return false, 0
+        print("ERROR: ", r.status_code)
+        print(r.text)
+        time.sleep(5)
+        return
 
     data = r.json()
  
@@ -78,8 +84,12 @@ def place_pixel(session, ax, ay, new_color):
                 new_color, data["user_name"] if "user_name" in data else "<nobody>"))
     else:
         print("Placing color #{} at ({}, {})".format(new_color, ax, ay))
-        r = session.post("https://www.reddit.com/api/place/draw.json",
-                data={"x": str(ax), "y": str(ay), "color": str(new_color)})
+        r = session.post("https://www.reddit.com/api/place/draw.json", data={
+            "x": str(ax),
+            "y": str(ay),
+            "color": str(new_color)
+        })
+
         data = r.json()
 
         if "error" not in data:
@@ -125,7 +135,7 @@ def main():
     session, err = login(username, password)
 
     if err:
-        print("Error logging in: {}".format(err[0][1]))
+        print("Error logging in: {}".format(err))
         sys.exit(1)
 
     arr2d = shuffle2d([[[i,j] for i in range(img.width)] for j in range(img.height)])
