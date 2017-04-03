@@ -13,6 +13,8 @@ UW_LOGO = """iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAhElEQVR4nGNckOXEQC5
              eDTNjgydclmHmMi2loGBYeA0s8BZtf/rkSWaGRshIs2MjciyEC4VbEZoRjYSmY0sgiaO02a4
              OyEMNE9h0YxpIX5ZfH7GbxZOzWiOxOpmAjYTBOia4U5FczNWL7BgCuGPM3w2kwSGqGYWBgYG
              uaxD5GkGAJB3JOlpuqlXAAAAAElFTkSuQmCC"""
+
+ORIGIN = (890, 850)
  
 def login(username, password):
     s = requests.Session()
@@ -112,14 +114,13 @@ def shuffle2d(arr2d, rand=random):
     return [data[istart:iend] for (istart,iend) in reshape]
 
 def main():
-    if len(sys.argv) != 5:
-        print('Usage: python3 place.py <origin_x> <origin_y> <reddit_username> <reddit_password>')
+    if len(sys.argv) != 3:
+        print('Usage: python3 place.py <reddit_username> <reddit_password>')
         sys.exit(1)
 
     img = Image.open(BytesIO(base64.b64decode(UW_LOGO)))
-    origin = (int(sys.argv[1]), int(sys.argv[2]))
-    username = sys.argv[3]
-    password = sys.argv[4]
+    username = sys.argv[1]
+    password = sys.argv[2]
 
     session, err = login(username, password)
 
@@ -139,8 +140,8 @@ def main():
      
                 if pixel[2] > 0:
                     pal = find_palette((pixel[0], pixel[1], pixel[2]))
-                    ax = xx[0] + origin[0]
-                    ay = xx[1] + origin[1]
+                    ax = xx[0] + ORIGIN[0]
+                    ay = xx[1] + ORIGIN[1]
                     place_pixel(session, ax, ay, pal)
 
         print("All pixels placed.")

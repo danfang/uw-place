@@ -9,4 +9,4 @@ uw-place
 
 # Usage
 
-Run `python3 place.py <origin_x> <origin_y> <reddit_username> <reddit_password>`
+Run `python3 place.py <reddit_username> <reddit_password>`
